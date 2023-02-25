@@ -11,10 +11,9 @@
 ## Requirements
 <img src="resources/requirement.png" style="zoom:20%;"  alt="requirement"/>
 
--[x] Task1: sensing module with a classification accuracy of more than 80%
-  - [ ] more than 90%
+- [x] Task1: sensing module with a classification accuracy of more than 80%
 - [ ] Task2: encoder-decoder network with a BER of less than 10%
--[ ] encoder-decoder network with a BER of less than 10%
+- [ ] encoder-decoder network with a BER of less than 10%
 - [ ] Task3: anti-sensing encoder 
   - [ ] against fixed sensing module
   - [ ] against optimized sensing module
