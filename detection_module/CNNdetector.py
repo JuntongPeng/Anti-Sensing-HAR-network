@@ -25,6 +25,7 @@ class CNNdetector(nn.Module):
                                  nn.Linear(64, 8))
 
     def forward(self, x):
+
         y1 = self.conv5(x)
 
         y2 = self.conv3(x)
@@ -34,6 +35,7 @@ class CNNdetector(nn.Module):
 
         y = y.view(-1, y.shape[1] * y.shape[2] * y.shape[3])
 
-        out = self.fcn(y).squeeze().softmax(dim=0)
+        out = self.fcn(y).softmax(dim=1)
+
 
         return out
