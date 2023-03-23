@@ -18,7 +18,7 @@ class CNNdetector(nn.Module):
                                    nn.Conv2d(32, 8, kernel_size=1))
         self.conv1 = nn.Sequential(nn.Conv2d(16, 8, kernel_size=1))
 
-        self.fcn = nn.Sequential(nn.Linear(64 * 128 * 8, 128 * 8),
+        self.fcn = nn.Sequential(nn.Linear(64 * 256 * 8, 128 * 8),
                                  nn.ReLU(),
                                  nn.Linear(128*8, 64),
                                  nn.ReLU(),

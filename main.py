@@ -29,6 +29,8 @@ def main():
     datetime = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
     if not os.path.exists('logs/%s' % datetime):
         os.makedirs('logs/%s' % datetime)
+    if not os.path.exists('archived'):
+        os.makedirs('archived')
 
     train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=False)

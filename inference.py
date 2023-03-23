@@ -15,7 +15,7 @@ from dataset.csi_dataset import CSIdataset
 def test_parser():
     parser = argparse.ArgumentParser(description="synthetic data generation")
 
-    parser.add_argument('--model_dir', default='',
+    parser.add_argument('--model_dir', default='archived/best_model_sensing_module.pth',
                         help='Continued training path')
 
     opt = parser.parse_args()
@@ -29,7 +29,7 @@ def main():
     val_dataset = CSIdataset(phase='test')
     print("-----dataset loaded-----")
 
-    val_dataloader = DataLoader(val_dataset, batch_size=2, shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=16, shuffle=False)
 
     if opt.model_dir != '':
         print('loading model')
@@ -48,13 +48,12 @@ def main():
     with torch.no_grad():
         acc_num = 0
         all_num = 0
-        for i, (csi, label) in enumerate(val_dataloader):
+        for i, (csi, label) in tqdm(enumerate(val_dataloader)):
             csi = csi.to(device)
             label = label.to(device)
 
             detect_result = model(csi).argmax(dim=1)
-            print(detect_result)
-            print(label)
+
             acc_num += (label == detect_result).sum().item()
 
             all_num += label.shape[0]
