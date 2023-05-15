@@ -2,6 +2,7 @@ import numpy as np
 import scipy.io as scio
 import torch
 from torch import nn
+import matplotlib.pyplot as plt
 
 
 class CSIdataset(nn.Module):
@@ -16,18 +17,12 @@ class CSIdataset(nn.Module):
             self.dataset = scio.loadmat('dataset/csi_eval_128_v3.mat')
 
         csi = self.dataset['csi']
-        real=np.real(csi)
-        img=np.imag(csi)
-        print(real.shape)
-        print(img.shape)
-        csi=np.concatenate((real,img),axis=2)
-        print(csi.shape)
+        real = np.real(csi)
+        img = np.imag(csi)
+        fig=plt.figure()
+        csi = np.concatenate((real, img), axis=2)
         self.dataset_csi = torch.tensor(csi.astype(np.float32))
-
         self.dataset_label = torch.tensor(self.dataset['label'][0].astype(np.int64))
-
-        # ones = torch.sparse.torch.eye(8)
-        # self.dataset_label = ones.index_select(0, dataset_label)
 
     def __getitem__(self, idx):
 

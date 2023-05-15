@@ -75,7 +75,7 @@ def main():
                 print('epoch: %d, acc: %f' % (epoch, acc_num / all_num))
                 if acc_num / all_num > best_acc:
                     best_acc = acc_num / all_num
-                    torch.save(model, 'archived/best_model_sensing_module.pth')
+                    torch.save(model, 'archived/best_model_encdec.pth')
                     best_epoch = epoch
                     print('best model saved')
         for i, (csi, label) in enumerate(train_dataloader):

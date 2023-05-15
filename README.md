@@ -16,7 +16,6 @@
 - [x] Task1: sensing module with a classification accuracy of more than 80%
   > [download model](about:blank)
 - [ ] Task2: encoder-decoder network with a BER of less than 10%
-- [ ] encoder-decoder network with a BER of less than 10%
 - [ ] Task3: anti-sensing encoder 
   - [ ] against fixed sensing module
   - [ ] against optimized sensing module
