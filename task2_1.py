@@ -99,7 +99,7 @@ def main():
                 print('epoch: %d, acc: %f' % (epoch, acc_num / all_num))
                 if acc_num / all_num > best_acc:
                     best_acc = acc_num / all_num
-                    torch.save(state, 'archived/best_model_encdec.pth')
+                    torch.save(state, 'archived/best_model_encdec_%s.pth' % bit_len)
                     best_epoch = epoch
                     print('best model saved')
 

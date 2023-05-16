@@ -1,4 +1,4 @@
 /dataset/csi_train_128_v3.mat
 /dataset/csi_eval_128_v3.mat
 /logs/
-/archived/
+/archived/*
