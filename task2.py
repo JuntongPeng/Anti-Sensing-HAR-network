@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 import time
 import numpy as np
 from dataset.csi_dataset import CSIdataset
-from enc_dec.deep_encdec import Encoder, Decoder
+from enc_dec.base_encdec import Encoder, Decoder
 
 
 def train_parser():
@@ -15,6 +15,8 @@ def train_parser():
 
     parser.add_argument('--model_dir', default='',
                         help='Continued training path')
+    parser.add_argument('--bit_len',default=16,type=int)
+    parser.add_argument('--lr',default=1e-4,type=float)
 
     opt = parser.parse_args()
     return opt
@@ -24,7 +26,8 @@ def main():
     opt = train_parser()
 
     batch_size = 32
-    bit_len = 128
+    bit_len = opt.bit_len
+    print(bit_len)
 
     print("-----loading dataset-----")
     train_dataset = CSIdataset(phase='train')
@@ -60,10 +63,10 @@ def main():
     encoder.train()
     decoder.train()
 
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.BCELoss()
 
-    optimizer = torch.optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=3e-5)
-    scheduler= torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.95)
+    optimizer = torch.optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=opt.lr)
+    scheduler= torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.95)
 
     best_acc = 0
     best_epoch = 0
@@ -83,7 +86,7 @@ def main():
                     csi = csi.to(device)
                     label = label.to(device)
                     csi = torch.squeeze(csi, dim=1)
-                    input = torch.randint(0, 2, size=(batch_size, bit_len)).float().to(device)
+                    input = torch.randint(0, 2, size=(csi.shape[0], bit_len)).float().to(device)
                     #input = torch.zeros((csi.shape[0], bit_len)).float().to(device)
                     target = input.clone().detach()
 
@@ -107,9 +110,8 @@ def main():
             csi = csi.to(device)
             label = label.to(device)
             csi = torch.squeeze(csi, dim=1)
-            input = torch.randint(0, 2, size=(batch_size, bit_len)).float().to(device)
+            input = torch.randint(0, 2, size=(csi.shape[0], bit_len)).float().to(device)
             target = input.clone().detach()
-
             enc_output = encoder(input)
             dec_input = torch.multiply(enc_output, csi)
             dec_output = decoder(dec_input)
