@@ -22,16 +22,16 @@ def train_parser():
 
 def main():
     opt = train_parser()
-    print("-----loading dataset-----")
-    train_dataset = CSIdataset(phase='train')
-    val_dataset = CSIdataset(phase='test')
-    print("-----dataset loaded-----")
+
     datetime = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
     if not os.path.exists('logs/%s' % datetime):
         os.makedirs('logs/%s' % datetime)
     if not os.path.exists('archived'):
         os.makedirs('archived')
-
+    print("-----loading dataset-----")
+    train_dataset = CSIdataset(phase='train')
+    val_dataset = CSIdataset(phase='test')
+    print("-----dataset loaded-----")
     train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=False)
     print("-----training start-----")

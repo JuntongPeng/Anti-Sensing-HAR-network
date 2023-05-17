@@ -15,8 +15,9 @@ def train_parser():
 
     parser.add_argument('--model_dir', default='',
                         help='Continued training path')
-    parser.add_argument('--bit_len',default=16,type=int)
-    parser.add_argument('--lr',default=1e-4,type=float)
+    parser.add_argument('--bit_len', default=16, type=int)
+    parser.add_argument('--lr', default=1e-4, type=float)
+    parser.add_argument('--random_mask', action='store_true', default=False)
 
     opt = parser.parse_args()
     return opt
@@ -24,7 +25,7 @@ def train_parser():
 
 def main():
     opt = train_parser()
-
+    print(opt.random_mask)
     batch_size = 32
     bit_len = opt.bit_len
     print(bit_len)
@@ -66,7 +67,7 @@ def main():
     criterion = nn.BCELoss()
 
     optimizer = torch.optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=opt.lr)
-    scheduler= torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.95)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.95)
 
     best_acc = 0
     best_epoch = 0
@@ -74,7 +75,7 @@ def main():
         if epoch - best_epoch > 50:
             break
 
-        if epoch % 5 == 0:
+        if epoch % 10 == 0:
             state = {'encoder': encoder.state_dict(), 'decoder': decoder.state_dict()}
             torch.save(state, 'logs/enc_dec/%s/model_%d.pth' % (datetime, epoch))
             print('model saved')
@@ -87,7 +88,7 @@ def main():
                     label = label.to(device)
                     csi = torch.squeeze(csi, dim=1)
                     input = torch.randint(0, 2, size=(csi.shape[0], bit_len)).float().to(device)
-                    #input = torch.zeros((csi.shape[0], bit_len)).float().to(device)
+                    # input = torch.zeros((csi.shape[0], bit_len)).float().to(device)
                     target = input.clone().detach()
 
                     enc_output = encoder(input)
@@ -113,6 +114,13 @@ def main():
             input = torch.randint(0, 2, size=(csi.shape[0], bit_len)).float().to(device)
             target = input.clone().detach()
             enc_output = encoder(input)
+
+            # random mask
+            if opt.random_mask:
+                rand_mat = torch.rand_like(enc_output)
+                mask_index = torch.where(rand_mat > 0.95)
+                enc_output[mask_index] = 1
+
             dec_input = torch.multiply(enc_output, csi)
             dec_output = decoder(dec_input)
 
@@ -126,6 +134,6 @@ def main():
         print('epoch: %d, loss: %f' % (epoch, loss.item()))
         scheduler.step()
 
+
 if __name__ == '__main__':
     main()
-
