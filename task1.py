@@ -32,8 +32,8 @@ def main():
     train_dataset = CSIdataset(phase='train')
     val_dataset = CSIdataset(phase='test')
     print("-----dataset loaded-----")
-    train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=64, shuffle=False)
+    train_dataloader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=False)
     print("-----training start-----")
 
     if opt.model_dir != '':
