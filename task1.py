@@ -42,7 +42,7 @@ def main():
     else:
         print('building model')
         model = CNNdetector()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-7)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.9)
     device = torch.device("cpu")
     if torch.cuda.is_available():

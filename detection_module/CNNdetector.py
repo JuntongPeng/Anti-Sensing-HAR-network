@@ -50,10 +50,11 @@ class CNNdetector(nn.Module):
                                  nn.Linear(64, 8))
 
     def forward(self, x):
-        y = self.cnn1(x)
-        y = self.cnn2(y)
-        y = self.cnn3(y)
-        y = self.cnn4(y)
+
+        y = self.cnn1(x)+x
+        y = self.cnn2(y)+y
+        y = self.cnn3(y)+y
+        y = self.cnn4(y)+y
 
         y = y.view(-1, y.shape[1] * y.shape[2] * y.shape[3])
 
