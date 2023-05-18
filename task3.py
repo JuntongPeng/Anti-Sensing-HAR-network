@@ -18,6 +18,7 @@ def train_parser():
                         help='Pretrained Sensing Module')
     parser.add_argument('--encdec_dir', default='archived/best_model_encdec_16bit.pth', required=False,
                         help='Pretrained Encoder Decoder')
+    parser.add_argument('--bit_len', default=16, required=False, help='bit length of the encoder')
     parser.add_argument('--stage', default='enc_dec', required=False)
 
     opt = parser.parse_args()
@@ -36,14 +37,14 @@ def main():
     if not os.path.exists('archived'):
         os.makedirs('archived')
     batch_size = 32
-    bit_len = 16
+    bit_len = opt.bit_len
     train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=False)
     print('-----loading model-----')
     sensing_module = torch.load(opt.sensing_module_dir)
     state = torch.load(opt.encdec_dir)
-    encoder = Encoder()
-    decoder = Decoder()
+    encoder = Encoder(bit_len)
+    decoder = Decoder(bit_len)
     encoder.load_state_dict(state['encoder'])
     decoder.load_state_dict(state['decoder'])
 
@@ -62,13 +63,15 @@ def main():
         sensing_module.train()
         encoder.eval()
         decoder.eval()
-        criterion = nn.CrossEntropyLoss()
+        criterion_enc = nn.BCELoss()
+        criterion_detect = nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(sensing_module.parameters(), lr=1e-6)
     elif opt.stage == 'enc_dec':
         sensing_module.eval()
         encoder.train()
         decoder.train()
-        criterion = nn.CrossEntropyLoss()
+        criterion_enc = nn.BCELoss()
+        criterion_detect=nn.CrossEntropyLoss()
         optimizer = torch.optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=1e-6)
     else:
         raise ValueError('stage not specified')
@@ -97,7 +100,10 @@ def main():
                     csi = csi.to(device)
                     label = label.to(device)
                     csi = torch.squeeze(csi, dim=1)
-                    input_bits = torch.randint(0, 2, size=(csi.shape[0], bit_len)).float().to(device)
+                    if opt.stage == 'enc_dec':
+                        input_bits = torch.randint(0, 2, size=(csi.shape[0], bit_len)).float().to(device)
+                    elif opt.stage == 'sensing_module':
+                        input_bits = torch.zeros((csi.shape[0], bit_len)).float().to(device)
                     target = input_bits.clone().detach()
 
                     enc_output = encoder(input_bits)
@@ -121,11 +127,12 @@ def main():
                         torch.save(sensing_module, 'archived/tuned_model_sensing_module.pth')
                         best_epoch = epoch
                         print('best model saved')
-                if acc_num / all_num > best_acc and False:
-                    best_acc = acc_num / all_num
-                    torch.save(state, 'archived/tuned_model_encdec.pth')
-                    best_epoch = epoch
-                    print('best model saved')
+                elif opt.stage == 'enc_dec':
+                    if acc_num / all_num > best_acc and False:
+                        best_acc = acc_num / all_num
+                        torch.save(state, 'archived/tuned_model_encdec.pth')
+                        best_epoch = epoch
+                        print('best model saved')
 
         if opt.stage == 'sensing_module':
             sensing_module.train()
@@ -142,7 +149,10 @@ def main():
             label = label.to(device)
             csi = torch.squeeze(csi, dim=1)
             # input_bits = torch.randint(0, 2, size=(csi.shape[0], bit_len)).float().to(device)
-            input_bits = torch.zeros((csi.shape[0], bit_len)).float().to(device)
+            if opt.stage == 'enc_dec':
+                input_bits = torch.randint(0, 2, size=(csi.shape[0], bit_len)).float().to(device)
+            elif opt.stage == 'sensing_module':
+                input_bits = torch.zeros((csi.shape[0], bit_len)).float().to(device)
             target = input_bits.clone().detach()
             enc_output = encoder(input_bits)
             dec_input = torch.multiply(enc_output, csi)
@@ -152,11 +162,11 @@ def main():
 
             if opt.stage == 'enc_dec':
 
-                detection_loss = criterion(detect_result, label)
-                transmission_loss = criterion(dec_output, target)
-                loss = -detection_loss + transmission_loss
+                detection_loss = criterion_detect(detect_result, label)
+                transmission_loss = criterion_enc(dec_output, target)
+                loss = -5*detection_loss + transmission_loss
             elif opt.stage == 'sensing_module':
-                detection_loss = criterion(detect_result, label)
+                detection_loss = criterion_detect(detect_result, label)
                 loss = detection_loss
             else:
                 raise ValueError('stage not specified')

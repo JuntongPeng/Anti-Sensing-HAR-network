@@ -33,7 +33,7 @@ def main():
     val_dataset = CSIdataset(phase='test')
     print("-----dataset loaded-----")
     train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=False)
+    val_dataloader = DataLoader(val_dataset, batch_size=64, shuffle=False)
     print("-----training start-----")
 
     if opt.model_dir != '':
@@ -42,7 +42,7 @@ def main():
     else:
         print('building model')
         model = CNNdetector()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.9)
     device = torch.device("cpu")
     if torch.cuda.is_available():
@@ -79,7 +79,7 @@ def main():
                     torch.save(model, 'archived/best_model_sensing_module.pth')
                     best_epoch = epoch
                     print('best model saved')
-        for i, (csi, label) in enumerate(train_dataloader):
+        for i, (csi, label) in tqdm(enumerate(train_dataloader)):
             csi = csi.to(device)
             label = label.to(device)
             optimizer.zero_grad()
