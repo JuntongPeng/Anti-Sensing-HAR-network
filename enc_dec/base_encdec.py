@@ -8,8 +8,8 @@ class Encoder(nn.Module):
         self.conv1 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=3, padding=1)
         self.conv2 = nn.Conv1d(in_channels=32, out_channels=64, kernel_size=3, padding=1)
         self.pool = nn.MaxPool1d(kernel_size=2)
-        self.fc1 = nn.Linear(in_features=16*bit_len, out_features=256)
-        self.fc2 = nn.Linear(in_features=256, out_features=64 * 256)
+        self.fc1 = nn.Linear(in_features=16*bit_len, out_features=16*bit_len)
+        self.fc2 = nn.Linear(in_features=16*bit_len, out_features=64 * 256)
 
     def forward(self, x):
         x = x.unsqueeze(1)
