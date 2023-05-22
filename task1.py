@@ -8,6 +8,7 @@ import time
 from detection_module.CNNdetector import CNNdetector
 import numpy as np
 from dataset.csi_dataset import CSIdataset
+from torch.utils.tensorboard import SummaryWriter
 
 
 def train_parser():
@@ -35,19 +36,23 @@ def main():
     train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=False)
     print("-----training start-----")
-
+    writer = SummaryWriter('./tf-logs')
+    model = CNNdetector()
     if opt.model_dir != '':
         print('loading model')
         model = torch.load(opt.model_dir)
     else:
         print('building model')
         model = CNNdetector()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+    # writer.add_graph(model, torch.rand(1, 1, 64, 256))
+    # writer.close()
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.9)
     device = torch.device("cpu")
     if torch.cuda.is_available():
-        model = model.cuda()
+        print("cuda")
         device = torch.device("cuda:0")
+        model = model.to(device)
     model.train()
     criterion = nn.CrossEntropyLoss()
     best_acc = 0
@@ -55,8 +60,8 @@ def main():
     for epoch in range(1000):
         if epoch - best_epoch > 50:
             break
-        if epoch % 5 == 0:
-            torch.save(model, 'logs/%s/model_%d.pth' % (datetime, epoch))
+        if epoch % 1 == 0:
+            #torch.save(model, 'logs/%s/model_%d.pth' % (datetime, epoch))
             print('model saved')
             model.eval()
             with torch.no_grad():
@@ -74,6 +79,7 @@ def main():
                     all_num += label.shape[0]
 
                 print('epoch: %d, acc: %f' % (epoch, acc_num / all_num))
+                writer.add_scalar('acc', acc_num / all_num, epoch)
                 if acc_num / all_num > best_acc:
                     best_acc = acc_num / all_num
                     torch.save(model, 'archived/best_model_sensing_module.pth')
@@ -91,7 +97,7 @@ def main():
             torch.cuda.empty_cache()
         scheduler.step()
         print('epoch: %d, loss: %f, lr: %f' % (epoch, loss.item(), optimizer.param_groups[0]['lr']))
-
+        writer.add_scalar('loss', loss.item(), epoch)
 
 if __name__ == '__main__':
     main()

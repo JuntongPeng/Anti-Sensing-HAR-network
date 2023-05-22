@@ -73,7 +73,7 @@ def main():
         encoder.train()
         decoder.train()
         criterion = nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=1e-4)
+        optimizer = torch.optim.Adam(list(encoder.parameters()) + list(decoder.parameters()), lr=1e-5)
     else:
         raise ValueError('stage not specified')
 
@@ -116,7 +116,7 @@ def main():
                     if opt.random_mask:
                         rand_mat = torch.rand_like(enc_output)
                         mask_index = torch.where(rand_mat > 1-opt.mask_ratio)
-                        enc_output[mask_index] = 1
+                        enc_output[mask_index] = 0
 
                     dec_input = torch.multiply(enc_output, csi)
 
