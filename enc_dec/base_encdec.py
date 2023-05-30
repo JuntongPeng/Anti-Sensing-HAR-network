@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import matplotlib.pyplot as plt
 
 class Encoder(nn.Module):
     def __init__(self,bit_len):
@@ -15,9 +15,11 @@ class Encoder(nn.Module):
         x = x.unsqueeze(1)
         x = self.conv1(x)
         x = nn.functional.relu(x)
+
         x = self.pool(x)
         x = self.conv2(x)
         x = nn.functional.relu(x)
+
         x = self.pool(x)
         x = x.view(x.shape[0], -1)
         x = self.fc1(x)
@@ -45,6 +47,7 @@ class Decoder(nn.Module):
         x = self.pool(x)
         x = self.conv2(x)
         x = nn.functional.relu(x)
+
         x = self.pool(x)
         x = x.view(-1, 64)
         x = self.fc1(x)

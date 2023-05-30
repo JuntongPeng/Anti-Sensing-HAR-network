@@ -8,8 +8,10 @@ import time
 import numpy as np
 from dataset.csi_dataset import CSIdataset
 from enc_dec.base_encdec import Encoder, Decoder
-
-
+import matplotlib.pyplot as plt
+from torch.utils.tensorboard import SummaryWriter
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 def train_parser():
     parser = argparse.ArgumentParser(description="synthetic data generation")
 
@@ -29,7 +31,7 @@ def main():
     batch_size = 32
     bit_len = opt.bit_len
     print(bit_len)
-
+    writer = SummaryWriter('./tf-logs')
     print("-----loading dataset-----")
     train_dataset = CSIdataset(phase='train')
     val_dataset = CSIdataset(phase='test')
@@ -92,6 +94,9 @@ def main():
                     target = input.clone().detach()
 
                     enc_output = encoder(input)
+
+                    writer.add_image('enc_output', enc_output[0].cpu().numpy(), epoch)
+
                     dec_input = torch.multiply(enc_output, csi)
                     dec_output = decoder(dec_input)
 
