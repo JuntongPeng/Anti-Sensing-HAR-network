@@ -16,7 +16,7 @@ def train_parser():
 
     parser.add_argument('--sensing_module_dir', default='archived/best_model_sensing_module.pth', required=False,
                         help='Pretrained Sensing Module')
-    parser.add_argument('--encdec_dir', default='archived/best_model_encdec_16bit.pth', required=False,
+    parser.add_argument('--encdec_dir', default='archived/best_model_encdec_16.pth', required=False,
                         help='Pretrained Encoder Decoder')
     parser.add_argument('--stage', default='enc_dec', required=False)
     parser.add_argument('--bit_len', default=16, type=int, required=False)
