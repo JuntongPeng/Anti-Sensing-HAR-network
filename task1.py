@@ -61,7 +61,7 @@ def main():
         if epoch - best_epoch > 50:
             break
         if epoch % 1 == 0:
-            #torch.save(model, 'logs/%s/model_%d.pth' % (datetime, epoch))
+            torch.save(model, 'logs/%s/model_%d.pth' % (datetime, epoch))
             print('model saved')
             model.eval()
             with torch.no_grad():
