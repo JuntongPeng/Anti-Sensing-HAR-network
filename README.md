@@ -20,3 +20,33 @@
 - [x] Task3: anti-sensing encoder 
   - [x] against fixed sensing module
   - [x] against optimized sensing module
+
+## Usage
+- Task 1
+
+Training
+```
+python task1.py --model_dir <model dir>
+```
+Inference
+```
+python task1_inference.py --model_dir <model dir>
+```
+
+- Task 2
+
+Training
+```
+python task2.py --model_dir <model dir> --bit_len <bit_len> --lr <learning rate> --random_mask <True or False>
+```
+Inference
+```
+python task2_inference.py --model_dir <model dir>
+```
+
+- Task 3
+
+Training
+```
+python task3.py --sensing_module_dir <sensing module dir> --encdec_dir <encdec dir> --stage <enc_dec or sensing_module> --bit_len <bit len> --random_mask <True or False> --mask_ratio <maske tatio> --preamble <True or False>
+```
